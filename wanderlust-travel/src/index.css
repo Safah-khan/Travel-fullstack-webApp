@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #04080f;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #04080f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a7a8a;
+  border-radius: 3px;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-sans {
+  font-family: 'DM Sans', sans-serif;
+}
+
+@layer components {
+  .btn-ghost {
+    @apply px-5 py-2 border border-white/10 rounded-full text-white bg-transparent text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:border-aqua hover:text-aqua;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2.5 bg-gradient-to-r from-aqua to-teal border-none rounded-full text-white text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-aqua/30;
+  }
+
+  .btn-cta-main {
+    @apply px-8 py-4 bg-gradient-to-r from-aqua to-teal rounded-full text-white font-semibold transition-all duration-300 hover:-translate-y-1 hover:scale-105 shadow-lg shadow-aqua/40 flex items-center gap-2;
+  }
+
+  .btn-cta-outline {
+    @apply px-8 py-4 bg-white/5 border border-white/20 rounded-full text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10 hover:border-white/40 flex items-center gap-2;
+  }
+
+  .section-tag {
+    @apply text-xs font-semibold tracking-widest uppercase text-aqua flex items-center gap-2 mb-4;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4;
+  }
+
+  .section-sub {
+    @apply text-white/60 text-base leading-relaxed max-w-lg;
+  }
+
+  .glass-card {
+    @apply bg-white/5 border border-white/10 rounded-2xl p-8 transition-all duration-500;
+  }
+
+  .input-field {
+    @apply w-full px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-aqua/50 focus:ring-2 focus:ring-aqua/20 transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
