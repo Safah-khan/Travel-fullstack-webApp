@@ -1,46 +1,48 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase/firebase'
+import { createContext, useContext, useState, useEffect } from "react";
+import {
+  auth,
+  onAuthStateChanged,
+  signOut,
+  getUserProfile,
+} from "../firebase/firebase";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export function useAuth() {
-  return useContext(AuthContext)
+  return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null)
-  const [userData, setUserData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user)
-      
+      setCurrentUser(user);
+
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid))
-          if (userDoc.exists()) {
-            setUserData(userDoc.data())
-          }
+          const profile = await getUserProfile(user.uid);
+          setUserData(profile);
         } catch (error) {
-          console.error('Error fetching user data:', error)
+          console.error("Error fetching user data:", error);
         }
       } else {
-        setUserData(null)
+        setUserData(null);
       }
-      
-      setLoading(false)
-    })
 
-    return unsubscribe
-  }, [])
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
 
   const logout = async () => {
-    await signOut(auth)
-    setUserData(null)
-  }
+    await signOut(auth);
+    setCurrentUser(null);
+    setUserData(null);
+  };
 
   const value = {
     currentUser,
@@ -48,11 +50,7 @@ export function AuthProvider({ children }) {
     loading,
     logout,
     isAuthenticated: !!currentUser,
-  }
+  };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,36 +1,38 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase/firebase'
-import { Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { auth, signInWithEmailAndPassword } from "../firebase/firebase";
+import { Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      toast.success('Welcome back!')
-      navigate('/booking')
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success("Welcome back!");
+      navigate("/booking");
     } catch (error) {
-      let message = 'Failed to login'
-      if (error.code === 'auth/user-not-found') message = 'No account found with this email'
-      if (error.code === 'auth/wrong-password') message = 'Incorrect password'
-      if (error.code === 'auth/invalid-email') message = 'Invalid email address'
-      if (error.code === 'auth/invalid-credential') message = 'Invalid email or password'
-      toast.error(message)
+      let message = "Failed to login";
+      if (error.code === "auth/user-not-found")
+        message = "No account found with this email";
+      if (error.code === "auth/wrong-password") message = "Incorrect password";
+      if (error.code === "auth/invalid-email")
+        message = "Invalid email address";
+      if (error.code === "auth/invalid-credential")
+        message = "Invalid email or password";
+      toast.error(message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-navy flex items-center justify-center px-4 py-20">
@@ -42,7 +44,10 @@ export default function Login() {
 
       <div className="relative w-full max-w-md">
         {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 font-serif text-2xl font-bold text-white mb-8">
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-2 font-serif text-2xl font-bold text-white mb-8"
+        >
           Wander<span className="text-aqua">lust</span>
         </Link>
 
@@ -54,14 +59,21 @@ export default function Login() {
               Welcome Back
             </div>
             <h1 className="font-serif text-2xl font-bold">Sign In</h1>
-            <p className="text-sm text-white/60 mt-2">Continue your journey with us</p>
+            <p className="text-sm text-white/60 mt-2">
+              Continue your journey with us
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium mb-2">Email Address</label>
+              <label className="block text-sm font-medium mb-2">
+                Email Address
+              </label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+                <Mail
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
+                />
                 <input
                   type="email"
                   value={email}
@@ -76,9 +88,12 @@ export default function Login() {
             <div>
               <label className="block text-sm font-medium mb-2">Password</label>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+                <Lock
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
+                />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
@@ -97,10 +112,15 @@ export default function Login() {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5" />
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-white/20 bg-white/5"
+                />
                 <span className="text-white/60">Remember me</span>
               </label>
-              <a href="#" className="text-aqua hover:underline">Forgot password?</a>
+              <a href="#" className="text-aqua hover:underline">
+                Forgot password?
+              </a>
             </div>
 
             <button
@@ -120,8 +140,11 @@ export default function Login() {
 
           <div className="mt-6 pt-6 border-t border-white/10 text-center">
             <p className="text-sm text-white/60">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-aqua font-medium hover:underline">
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-aqua font-medium hover:underline"
+              >
                 Sign up
               </Link>
             </p>
@@ -130,11 +153,14 @@ export default function Login() {
 
         {/* Back Link */}
         <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-white/40 hover:text-white/70 transition-colors">
+          <Link
+            to="/"
+            className="text-sm text-white/40 hover:text-white/70 transition-colors"
+          >
             ← Back to home
           </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }

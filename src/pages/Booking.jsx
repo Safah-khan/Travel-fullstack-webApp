@@ -1,96 +1,110 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { collection, addDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase/firebase'
-import { useAuth } from '../context/AuthContext'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import { MapPin, Calendar, Users, Plane, Train, Car, ArrowRight, Sparkles } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, createBooking } from "../firebase/firebase";
+import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Plane,
+  Train,
+  Car,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 const travelTypes = [
-  { id: 'flight', name: 'Flight', icon: Plane },
-  { id: 'train', name: 'Train', icon: Train },
-  { id: 'cab', name: 'Cab', icon: Car },
-]
+  { id: "flight", name: "Flight", icon: Plane },
+  { id: "train", name: "Train", icon: Train },
+  { id: "cab", name: "Cab", icon: Car },
+];
 
 const destinations = [
-  'Bali, Indonesia',
-  'Paris, France',
-  'Maldives',
-  'Patagonia, Argentina',
-  'Kyoto, Japan',
-  'Swiss Alps, Switzerland',
-  'Santorini, Greece',
-  'Cape Town, South Africa',
-  'New York City, USA',
-  'Dubai, UAE',
-]
+  "Bali, Indonesia",
+  "Paris, France",
+  "Maldives",
+  "Patagonia, Argentina",
+  "Kyoto, Japan",
+  "Swiss Alps, Switzerland",
+  "Santorini, Greece",
+  "Cape Town, South Africa",
+  "New York City, USA",
+  "Dubai, UAE",
+];
 
 export default function Booking() {
-  const { userData } = useAuth()
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const { userData } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    destination: '',
-    travelType: 'flight',
-    travelDate: '',
+    destination: "",
+    travelType: "flight",
+    travelDate: "",
     passengerCount: 1,
-  })
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!formData.destination || !formData.travelDate) {
-      toast.error('Please fill in all required fields')
-      return
+      toast.error("Please fill in all required fields");
+      return;
     }
 
-    const selectedDate = new Date(formData.travelDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
+    const selectedDate = new Date(formData.travelDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     if (selectedDate < today) {
-      toast.error('Please select a future date')
-      return
+      toast.error("Please select a future date");
+      return;
     }
 
-    setLoading(true)
+    if (!auth.currentUser) {
+      toast.error("Please sign in again to continue");
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const bookingData = {
         userId: auth.currentUser.uid,
-        userName: userData?.fullName || auth.currentUser.displayName || 'Guest',
+        userName: userData?.fullName || auth.currentUser.displayName || "Guest",
         userEmail: auth.currentUser.email,
         destination: formData.destination,
         travelType: formData.travelType,
         travelDate: formData.travelDate,
         passengerCount: parseInt(formData.passengerCount),
         createdAt: new Date().toISOString(),
-        status: 'confirmed',
-      }
+        status: "confirmed",
+      };
 
-      const docRef = await addDoc(collection(db, 'bookings'), bookingData)
-      
-      toast.success('Booking confirmed!')
-      navigate('/booking-success', { state: { booking: { id: docRef.id, ...bookingData } } })
+      const booking = await createBooking(bookingData);
+
+      toast.success("Booking confirmed!");
+      navigate("/booking-success", { state: { booking } });
     } catch (error) {
-      console.error('Booking error:', error)
-      toast.error('Failed to create booking. Please try again.')
+      console.error("Booking error:", error);
+      toast.error("Failed to create booking. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-navy">
       <Navbar />
-      
+
       <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -123,26 +137,37 @@ export default function Booking() {
                   className="input-field"
                   required
                 >
-                  <option value="" disabled className="bg-navy">Select a destination</option>
+                  <option value="" disabled className="bg-navy">
+                    Select a destination
+                  </option>
                   {destinations.map((dest) => (
-                    <option key={dest} value={dest} className="bg-navy">{dest}</option>
+                    <option key={dest} value={dest} className="bg-navy">
+                      {dest}
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* Travel Type */}
               <div>
-                <label className="block text-sm font-medium mb-3">Travel Type</label>
+                <label className="block text-sm font-medium mb-3">
+                  Travel Type
+                </label>
                 <div className="grid grid-cols-3 gap-3">
                   {travelTypes.map((type) => (
                     <button
                       key={type.id}
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, travelType: type.id }))}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          travelType: type.id,
+                        }))
+                      }
                       className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
                         formData.travelType === type.id
-                          ? 'bg-aqua/20 border-aqua text-aqua'
-                          : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                          ? "bg-aqua/20 border-aqua text-aqua"
+                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                       }`}
                     >
                       <type.icon size={24} />
@@ -164,7 +189,7 @@ export default function Booking() {
                     name="travelDate"
                     value={formData.travelDate}
                     onChange={handleChange}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                     className="input-field"
                     required
                   />
@@ -183,7 +208,7 @@ export default function Booking() {
                   >
                     {[1, 2, 3, 4, 5, 6].map((num) => (
                       <option key={num} value={num} className="bg-navy">
-                        {num} {num === 1 ? 'Passenger' : 'Passengers'}
+                        {num} {num === 1 ? "Passenger" : "Passengers"}
                       </option>
                     ))}
                   </select>
@@ -212,12 +237,13 @@ export default function Booking() {
 
           {/* Info Note */}
           <p className="text-center text-sm text-white/40 mt-6">
-            By booking, you agree to our terms and conditions. Free cancellation up to 24 hours before travel.
+            By booking, you agree to our terms and conditions. Free cancellation
+            up to 24 hours before travel.
           </p>
         </div>
       </main>
 
       <Footer />
     </div>
-  )
+  );
 }
